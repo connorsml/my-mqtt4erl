@@ -224,12 +224,12 @@ encode_message(#mqtt{type = ?PUBLISH, arg = {Topic, Payload}} = Message) ->
     Message#mqtt.qos =:= 0 ->
         {
           encode_string(Topic),
-          encode_string(Payload)
+          list_to_binary(Payload)
         };
     Message#mqtt.qos > 0 ->
         {
           list_to_binary([encode_string(Topic), <<(Message#mqtt.id):16/big>>]),
-          encode_string(Payload)
+          list_to_binary(Payload)
         }
   end;
 encode_message(#mqtt{type = ?PUBACK, arg = MessageId}) ->
