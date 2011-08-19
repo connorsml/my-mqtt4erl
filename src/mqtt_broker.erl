@@ -71,13 +71,14 @@ owner_loop(#owner{} = State) ->
     #mqtt{type = ?PUBLISH} = Message ->
       distribute(Message),
       State;
-    {mqtt_client,disconnected} ->
+    {mqtt_client,disconnected, Socket} ->
       case State#owner.will of
         #mqtt{} = Will ->
           distribute(Will);
         _ ->
           noop
       end,
+      gen_tcp:shutdown(Socket, read_write),
       exit(normal);
     Message ->
       ?LOG({owner, unexpected_message, Message}),

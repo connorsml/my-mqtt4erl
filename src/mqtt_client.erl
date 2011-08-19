@@ -144,7 +144,7 @@ handle_call(#mqtt{type = ?CONNECT, arg = Opts}, _FromPid, State) ->
                   do_connect(Opts, State);
               _ ->
                   ok = send(#mqtt{type = ?CONNACK, arg = 4}, State),
-                  {stop, {connect_refused, invalid_clientid}, State}
+                  {stop, {connect_refused, bad_username_or_password}, State}
           end
   end;
 handle_call(#mqtt{type = ?PINGRESP}, _FromPid, State) ->
@@ -237,7 +237,7 @@ handle_info(Message, State) ->
 
 terminate(Reason, State) ->
     ?LOG({terminate, Reason}),
-    notify_owner({?MODULE, disconnected}, State),
+    notify_owner({?MODULE, disconnected, State#mqtt_client.socket}, State),
     ok.
 code_change(_OldVersion, State, _Extra) -> {ok, State}.
 
